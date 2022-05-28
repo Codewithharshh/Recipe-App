@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title></title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cookie&family=Poppins&family=Roboto:wght@300&display=swap');
+*{
+margin:0;    
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#04CD65; 
+/*display:flex;
+justify-content:center;
+align-items:center;*/
+height:100vh;
+font-family: 'poppins', sans-serif;
+overflow:hidden;
+}
+
+.container{
+height:120px;  /*120px*/ 
+width:330px;
+background:white;
+border-radius:5px;
+overflow:hidden;
+position:relative;
+top:303px;
+left:50%;
+transform:translate(-50%,-50%);
+}
+
+.input-div{
+height:50px;
+width:315px;
+position:relative;
+top:15px;
+left:8px;
+}
+
+.search-bar{
+all:unset;   
+height:32px;
+width:215px;
+border-bottom:1px solid grey;
+font-size:15px;
+padding-left:5px;
+margin-left:3px;
+margin-top:5px;
+}
+
+/*.search-bar:focus{
+border-color:black;     
+}*/
+
+.search-btn{
+all:unset;  
+padding:5px;
+background:#04CD65;
+height:25px;
+width:70px;
+text-align:center;
+border-radius:2px;
+color:white;
+cursor:pointer;
+}
+
+.text{
+ white-space:nowrap; 
+ position:absolute;
+ top:75px;
+ left:50%;
+ transform:translate(-50%,-50%);
+ color:grey;
+}
+
+.img-div{
+height:120px;  
+width:200px;
+position:absolute;
+top:30%;
+left:50%;
+transform:translate(-50%,-50%);
+}
+
+.dish-name-area{
+height:50px;  
+width:230px;
+background:#04CD65;
+position:relative;
+top:160px;
+left:50%;
+transform:translate(-50%, -50%);
+text-align:center;
+border-radius:3px;
+}
+
+img{
+height:100%; 
+width:100%;
+border-radius:10px;
+}
+
+.dish-name{
+ font-weight:600;
+ font-size:16px;
+ color:white; 
+ position:relative;
+ top:2px;
+}
+
+.dish-area{
+color:white; 
+position:relative;
+top:2px;
+}
+
+.get-recipe-btn{
+all:unset;
+padding:5px;
+background:#04CD65;
+width:100px;
+text-align:center;
+border-radius:2px;
+position:absolute;
+top:435px;
+right:10px;
+color:white;     
+cursor:pointer;
+}
+
+.ingredient-div{
+position:absolute; 
+top:70%;
+left:50%;
+transform:translate(-50%,-50%);
+height:200px;
+width:300px;
+overflow-y:scroll;
+}
+
+.recipe-div{
+height:100vh;  
+width:100%;
+background:white;
+position:absolute;
+top:0px;
+overflow-y:scroll;
+display:none;
+}
+
+.close-btn{
+position:relative;
+width:1.8em;
+height:1.8em;
+font-size:1em;
+background:#04CD65;
+top:0.5em;
+left:90%;
+border-radius:3px;
+border:none;
+color:white;
+}
+
+pre{
+white-space:pre-wrap;   
+word-wrap:break-word;
+padding:1em 1em 1em 1em;
+font-family: 'poppins', sans-serif;
+font-size:0.8em;
+position:relative;
+top:-10px;
+}
+
+ul{
+font-size:1em;
+position:relative;
+display:grid;
+grid-template-columns:auto auto;
+gap:0.8em 1.1em;
+padding:1.2em 0 0 1.2em;
+}
+
+li{
+font-size:11px;       
+}
+</style>      
+</head>
+
+<body>
+  <div class="container">
+      
+<div class="input-div">
+ <input type="text" class="search-bar" placeholder="Type Dish Name (Ex.Pizza)">
+ <button class="search-btn" onclick="result()">Search</button>
+ <span class="text">Result will be display here..</span>
+</div> 
+
+<div class="result-div">
+
+</div>
+
+
+  </div>
+  
+<script>
+let resultdiv = document.querySelector('.result-div')
+ let url = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+
+function result(){
+ var searchbar = document.querySelector('.search-bar').value;
+
+   if(searchbar != '') {
+  document.querySelector('.container').style.height = '480px';
+  document.querySelector('.text').style.display = 'none';
+  document.querySelector('.result-div').style.display = 'block';
+}    
+ fetch(url + searchbar).then((response)=>response.json()).then((data)=>{
+  let mymeal = data.meals[0];
+  let count = 1;
+  let ingredients = [];
+  for(let i in mymeal){
+let ingredient = '';
+let measure = '';
+if(i.startsWith('strIngredient') && mymeal[i]){
+    ingredient = mymeal[i];
+    measure = mymeal[`strMeasure` + count];
+    count+=1;
+    ingredients.push(`${measure} ${ingredient}`);
+    
+}
+  }
+  resultdiv.innerHTML =  `<div class="img-div">
+    <img src="${mymeal.strMealThumb}" alt="Loading...">
+  </div> 
+  <div class = "dish-name-area">
+          <p class="dish-name">${mymeal.strMeal}</p> 
+          <p class = "dish-area">${mymeal.strArea}</p> 
+          </div>
+  
+          <div class = "ingredient-div" >
+  
+          </div>
+          <div class="recipe-div">
+<button class="close-btn" onclick="closediv()">X</button>
+<pre id="instructions">
+   ${mymeal.strInstructions}     
+</pre>
+          </div>
+  <button class="get-recipe-btn" onclick="show()">VIEW RECIPE</button>
+        `;
+ let ingredientdiv = document.querySelector('.ingredient-div');
+ let parent = document.createElement('ul');
+       
+ingredients.forEach((i) => {
+        let child = document.createElement("li");
+         child.innerText = i;
+         parent.appendChild(child);
+                ingredientdiv.appendChild(parent);
+              });
+             
+ })
+};
+ 
+
+
+function closediv(){
+document.querySelector('.recipe-div').style.display = 'none';
+ document.querySelector('.get-recipe-btn').style.display = 'block';
+}
+
+function show(){
+ document.querySelector('.recipe-div').style.display = 'block';
+ document.querySelector('.get-recipe-btn').style.display = 'none';
+ 
+}
+</script>
+</body>
+
+</html>
